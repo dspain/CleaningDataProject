@@ -14,7 +14,7 @@
 
 library(data.table)
 
-## mergeDataSets merges the training
+## mergeDataSets merges the data sets together
 mergeDataSets <- function(dir_name = ".") {
   train_dir <- paste(dir_name,"train",sep="/")
   test_dir <- paste(dir_name,"test",sep="/")
@@ -65,14 +65,20 @@ mergeDataSets <- function(dir_name = ".") {
   # Combine the data into one giant dataset
   full_data <- rbind(full_train_data, full_test_data)
   # Drop "Activity-ID" column as it is redundant with "Activity-Name"
-  full_data[,!"Activity-ID"]
+  full_data[,!(names(full_data) %in% "Activity-ID")]
 }
 
-
+## writeDataSetWithAverages creates a file in the supplied directory name
+##   that contains the average of each variable grouped by the activity
+##   name and subject
 writeDataSetWithAverages <- function(dir_name = ".") {
+  # Get the merged dataset
   data <- mergeDataSets(dir_name)
   data.t <- data.table(data)
   
+  # Get the avg (mean) for each column, grouped by Acivity-Name & Subject-ID
   tidy.data.t <- data.t[,lapply(.SD,mean), by="Activity-Name,Subject-ID"]
   write.table(tidy.data.t,paste(dir_name,"tidy_data.txt",sep="/"))
 }
+
+writeDataSetWithAverages()
